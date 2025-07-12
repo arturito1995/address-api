@@ -1,0 +1,97 @@
+openapi: 3.0.0
+info:
+  title: Address Validation API
+  version: "1.0.0"
+  description: API for validating and correcting US and international addresses.
+
+paths:
+  /address/validate:
+    post:
+      summary: Validate an address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressPayload"
+      responses:
+        200:
+          description: Address validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationResponse"
+        400:
+          description: Bad Request - validation or parsing issue
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        429:
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    AddressPayload:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          type: string
+          example: "1600 Amphitheatre Parkway, Mountain View, CA"
+
+    Address:
+      type: object
+      properties:
+        number:
+          type: string
+          example: "1600"
+        street:
+          type: string
+          example: "Amphitheatre Parkway"
+        city:
+          type: string
+          example: "Mountain View"
+        state:
+          type: string
+          example: "CA"
+        zipCode:
+          type: string
+          example: "94043"
+
+    ValidationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum: [valid, corrected, unverifiable]
+          example: "valid"
+        address:
+          $ref: "#/components/schemas/Address"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "PayloadValidationError"
+        details:
+          type: string
+          example: "address is required"
